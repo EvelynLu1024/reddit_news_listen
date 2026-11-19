@@ -2,48 +2,81 @@
 
 import re
 
-_POLITICS = (
-    "election",
-    "senate",
-    "congress",
-    "parliament",
-    "president",
-    "white house",
-    "sanction",
-    "ceasefire",
-    "diplomat",
-    "military",
-    "ukraine",
-    "tariff",
-)
-
-_FINANCE = (
-    "interest rate",
-    "inflation",
-    "federal reserve",
-    "central bank",
-    "stock",
-    "bond",
-    "treasury",
-    "recession",
-    "oil price",
-    "bank",
-    "tariff",
-)
+# Six topics. A title must match at least one.
+TOPICS = {
+    "election": (
+        "election",
+        "elections",
+        "electoral",
+        "ballot",
+        "referendum",
+        "candidate",
+        "campaign",
+        "polling",
+    ),
+    "diplomacy": (
+        "diplomat",
+        "diplomacy",
+        "embassy",
+        "ambassador",
+        "sanction",
+        "sanctions",
+        "treaty",
+        "summit",
+        "ceasefire",
+        "foreign minister",
+    ),
+    "central-bank": (
+        "central bank",
+        "federal reserve",
+        "interest rate",
+        "rate hike",
+        "rate cut",
+        "monetary policy",
+        "ecb",
+        "inflation",
+    ),
+    "trade": (
+        "tariff",
+        "tariffs",
+        "trade deal",
+        "trade war",
+        "export ban",
+        "import ban",
+        "wto",
+        "customs",
+    ),
+    "energy": (
+        "oil price",
+        "crude",
+        "opec",
+        "lng",
+        "natural gas",
+        "pipeline",
+        "refinery",
+        "energy price",
+    ),
+    "markets": (
+        "stock market",
+        "bond market",
+        "financial market",
+        "treasury",
+        "bond yield",
+        "wall street",
+        "sell-off",
+        "selloff",
+        "recession",
+    ),
+}
 
 
 def _hit(title, phrase):
-    if " " in phrase:
+    if " " in phrase or "-" in phrase:
         return phrase in title
     return re.search(rf"\b{re.escape(phrase)}\b", title) is not None
 
 
 def tags_for(title):
-    """Return politics and/or finance, or an empty list when the title is neither."""
+    """Return the topic names that match, or an empty list."""
     text = title.casefold()
-    tags = []
-    if any(_hit(text, phrase) for phrase in _POLITICS):
-        tags.append("politics")
-    if any(_hit(text, phrase) for phrase in _FINANCE):
-        tags.append("finance")
-    return tags
+    return [name for name, phrases in TOPICS.items() if any(_hit(text, phrase) for phrase in phrases)]
